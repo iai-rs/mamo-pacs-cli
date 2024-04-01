@@ -5,6 +5,7 @@ ENV VPN_IP_ADDRESS=vpnipaddress
 ENV VPN_USER=vpnuser
 ENV VPN_PASSWORD=vpnpassword
 ENV VPN_PRE_SHARED_KEY=vpnpresharedkey
+ENV PRIVATE_IP=privateip
 
 # Update and install VPN and network diagnostic tools
 RUN apt-get update && \
@@ -17,5 +18,9 @@ COPY ./vpn-config /etc
 # Copy the entry script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+# Copy the ipsec-assist script
+COPY ipsec-assist.sh /etc/init.d/ipsec-assist.sh
+RUN chmod +x /etc/init.d/ipsec-assist.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
