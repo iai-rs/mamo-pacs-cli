@@ -9,7 +9,7 @@ ENV PRIVATE_IP=privateip
 
 # Update and install VPN and network diagnostic tools
 RUN apt-get update && \
-    apt-get install -y strongswan xl2tpd net-tools iptables ppp lsb-release iputils-ping curl vim systemd && \
+    apt-get install -y strongswan xl2tpd net-tools iptables ppp lsb-release iputils-ping curl
     # apt-get clean
 
 # Copy your VPN configuration files into the container
