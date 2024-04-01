@@ -27,16 +27,16 @@ case "$1" in
         /usr/sbin/service xl2tpd stop
         ;;
     test_connection)
-        ping_result=$(ping -c 1 PRIVATE_IP_PLACEHOLDER)
+        echo "TESTING: $2"
+        ping_result=$(ping -c 1 "$2")
 
         # Check the exit status of the ping command
         if [ $? -ne 0 ]; then
             # If the ping command failed, display an error message
-            echo "Ping failed: Could not reach PRIVATE_IP_PLACEHOLDER"
-            # exit 1
+            echo "Ping failed: Could not reach $2"
         else
             # If the ping command succeeded, display a success message
-            echo "Ping succeeded: PRIVATE_IP_PLACEHOLDER is reachable"
+            echo "Ping succeeded: $2 is reachable"
         fi
         ;;
     esac

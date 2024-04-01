@@ -5,7 +5,6 @@ ENV VPN_IP_ADDRESS=vpnipaddress
 ENV VPN_USER=vpnuser
 ENV VPN_PASSWORD=vpnpassword
 ENV VPN_PRE_SHARED_KEY=vpnpresharedkey
-ENV PRIVATE_IP=privateip
 
 # Update and install VPN and network diagnostic tools
 RUN apt-get update && \
