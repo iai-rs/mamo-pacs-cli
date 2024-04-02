@@ -29,7 +29,7 @@ run:
 		-e VPN_IP_ADDRESS=$(vpn_ip_address) \
 		-e VPN_PRE_SHARED_KEY=$(vpn_psk) \
 		-e PRIVATE_IP=10.1.1.130  \
-		--privileged --cap-add NET_ADMIN -d --name=myvpncontainer l2tp-ipsec-vpn
+		--privileged --cap-add NET_ADMIN -d --name=$(CONTAINER_NAME) $(IMAGE_NAME)
 
 destroy:
 	docker stop $(CONTAINER_NAME)
