@@ -28,7 +28,6 @@ run:
 		-e VPN_PASSWORD=$(vpn_password) \
 		-e VPN_IP_ADDRESS=$(vpn_ip_address) \
 		-e VPN_PRE_SHARED_KEY=$(vpn_psk) \
-		-e PRIVATE_IP=10.1.1.130  \
 		--privileged --cap-add NET_ADMIN -d --name=$(CONTAINER_NAME) $(IMAGE_NAME)
 
 destroy:
