@@ -1,4 +1,4 @@
-# Mamo PACS cli/
+# Mamo PACS cli
 
 ## Description
 
