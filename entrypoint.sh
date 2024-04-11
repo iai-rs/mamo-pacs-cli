@@ -19,7 +19,7 @@ while ! ipsec status > /dev/null 2>&1; do
 done
 echo "IPsec initialized."
 
-/etc/init.d/ipsec-assist.sh start
+/etc/cron-job.sh
 
 # Keep the script running to maintain the VPN connection
 sleep infinity
