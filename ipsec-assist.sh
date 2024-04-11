@@ -4,26 +4,26 @@ case "$1" in
     start)
         echo "Starting L2TP connection"
 
-        iptables --table nat --append POSTROUTING --jump MASQUERADE
-        ipsec restart
+        /usr/sbin/iptables --table nat --append POSTROUTING --jump MASQUERADE
+        /usr/sbin/ipsec restart
         /usr/sbin/service xl2tpd restart
 
-        ipsec up myvpn
+        /usr/sbin/ipsec up myvpn
         echo "c myvpn" > /var/run/xl2tpd/l2tp-control
 
         sleep 10
 
         ip_address=$(ip route | grep default | awk '{print $3}')
-        route add VPN_IP_ADDRESS_PLACEHOLDER gw "$ip_address"
+        /usr/sbin/route add VPN_IP_ADDRESS_PLACEHOLDER gw "$ip_address"
 
         public_ip=$(curl -s ifconfig.me)
-        route add "$public_ip" gw "$ip_address"
-        route add default dev ppp0
+        /usr/sbin/route add "$public_ip" gw "$ip_address"
+        /usr/sbin/route add default dev ppp0
         ;;
     stop)
         echo "Stopping L2TP connection"
-        iptables --table nat --flush
-        ipsec stop
+        /usr/sbin/iptables --table nat --flush
+        /usr/sbin/ipsec stop
         /usr/sbin/service xl2tpd stop
         ;;
     test_connection)
