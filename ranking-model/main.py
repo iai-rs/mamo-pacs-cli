@@ -48,8 +48,8 @@ def e2e_inference(images_dir):
     }
 
     for key, value in dict_results.items():
-        os.remove(os.path.join(tmp_dir, key + '.png'))
         study_uid = key.replace('neg/', '')
+        os.remove(os.path.join(tmp_dir, 'neg', study_uid + '.png'))
         model_1_result = value[0]
         data['study_uid'].append(study_uid)
         data['model_1_result'].append(model_1_result)
