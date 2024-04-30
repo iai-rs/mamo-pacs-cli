@@ -14,6 +14,6 @@ export DB_HOSTNAME=...<br>
 export DB_PORT=...<br>
 export DB_NAME=...<br>
 
-Model and environment variables should already be set in the container already running on NTP named `mammo-ranking`.
+Model and environment variables should already be set in the container already running on NTP named `mammo-ranking`. The `/data` inside this container contains sample images from InBreast open dataset.
 
 From the container, run `python main.py` and the model will be ran and the results will be written to the DB.
