@@ -528,29 +528,50 @@ class DMAucModelCheckpoint(Callback):
         self.best_all_auc = None
 
     @staticmethod
+    def process_batch(test_set, model, batch_size=None, test_samples=None,
+                      return_y_res=False, test_augment=False):
+                      
+        def augmented_predict(X, batch_size=None):
+            '''Predict on a batch of images with augmentation
+            '''
+            num_samples = X.shape[0]
+            num_batches = (num_samples + batch_size - 1) // batch_size  # Ceil division
+
+            for batch_idx in range(num_batches):
+                start_idx = batch_idx * batch_size
+                end_idx = min(start_idx + batch_size, num_samples)
+                batch_X = X[start_idx:end_idx]
+                batch_pred = model.predict(batch_X, batch_size=batch_size)
+                yield batch_pred
+                      
+        if test_samples is None:
+            raise Exception('test_samples must be specified when ' + \
+                            'test set is a generator')
+        test_set.reset()
+        samples_seen = 0
+        fnames = test_set.filenames
+        print(fnames)
+        i = 0
+        minibatch = 5
+        while samples_seen < test_samples:
+            print('Started loop...')
+            res = next(test_set)
+            if len(res) > 2:
+                weights = res[2]
+            else:
+                weights = None
+            X, y = res[:2]
+            samples_seen += len(y)
+            print('Started prediction...')
+            for pred in augmented_predict(X, minibatch):
+                yield fnames[i * minibatch : np.minimum(len(fnames), (i + 1) * minibatch)], pred
+                i += 1
+
+    @staticmethod
     def calc_test_auc(test_set, model, batch_size=None, test_samples=None,
                       return_y_res=False, test_augment=False):
         '''Calculate the AUC score for a test set or generator given a model
         '''
-        def augmented_predict(X, batch_size=None):
-            '''Predict on a batch of images with augmentation
-            '''
-            if test_augment:
-                X_tests = flip_all_img(X)  # X_tests is a list of augmented images.
-                y_preds = []
-                for X_test in X_tests:
-                    if batch_size is None:
-                        y_preds.append(model.predict_on_batch(X_test))
-                    else:
-                        y_preds.append(model.predict(X_test, batch_size))
-                y_pred = np.stack(y_preds).mean(axis=0)
-            elif batch_size is None:
-                y_pred = model.predict_on_batch(X)
-            else:
-                y_pred = model.predict(X, batch_size)
-                print(y_pred)
-            return y_pred
-
         if isinstance(test_set, tuple):
             if batch_size is None:
                 raise Exception('batch_size must be specified when ' + \
@@ -590,17 +611,8 @@ class DMAucModelCheckpoint(Callback):
                 weights = np.concatenate(wei_list)
             else:
                 weights = None
-        # Calculate AUC score.
-        # import pdb; pdb.set_trace()
-        cm = confusion_matrix(y_true.argmax(axis=1), y_pred.argmax(axis=1))
-        try:
-            auc = roc_auc_score(y_true, y_pred, average=None, 
-                                sample_weight=weights)
-        except ValueError:
-            auc = .0
-        if return_y_res:
-            return (auc, y_true, y_pred)
-        return auc, dict_results
+
+        return dict_results
 
     def on_epoch_end(self, epoch, logs={}):
         auc = self.calc_test_auc(self.test_data, self.model, self.batch_size, 
