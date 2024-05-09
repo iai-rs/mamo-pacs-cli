@@ -9,7 +9,9 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 
 
-def e2e_inference(images_dir):
+primary_key_column = 'study_uid'
+
+def e2e_inference(images_dir, engine):
     # Load pre-trained model
     print('Loading model...')
     model = load_model('inbreast_vgg16_512x1.h5')
@@ -17,8 +19,37 @@ def e2e_inference(images_dir):
     print('Model loaded.')
     tmp_dir = 'tmp_png'
 
-    # Read the DICOM file into png format
+    data = {
+    'study_uid': []
+    }
+    for image in os.listdir(images_dir):
+        data['study_uid'].append(image)
+    
+    df = pd.DataFrame(data)
+    primary_key_values = df[primary_key_column]
+
+    query = text(
+        f"SELECT {primary_key_column} FROM birads_results WHERE {primary_key_column} IN :pk_values"
+    )
+
+    with engine.connect() as connection:
+        existing_df = pd.read_sql(query, connection, params={'pk_values': tuple(primary_key_values)})
+
+    new_rows = df.merge(existing_df, on=primary_key_column, how='left', indicator=True)
+    print('###############')
+    print(new_rows)
+
+    new_rows_to_insert = new_rows[new_rows['_merge'] == 'left_only'].drop(columns=['_merge'])
+    print('###############')
+    print(new_rows_to_insert[primary_key_column])
+
+
+
     for filename in os.listdir(images_dir):
+        if filename not in new_rows_to_insert[primary_key_column].values:
+            print('NOT ', filename)
+            continue
+        print('YES')
         filepath = os.path.join(images_dir, filename)
         dicom_image = pydicom.dcmread(filepath)
         # Get the pixel array from the DICOM file
@@ -29,6 +60,7 @@ def e2e_inference(images_dir):
         # Save as PNG in the same directory
         png_filepath = os.path.join(tmp_dir, 'neg', filename + '.png')
         cv2.imwrite(png_filepath, pixel_array)
+
 
     test_imgen = DMImageDataGenerator(featurewise_center=True)
 
@@ -72,9 +104,7 @@ def get_db_engine():
     connection_string = f"postgresql://{username}:{password}@{hostname}:{port}/{database_name}"
     return create_engine(connection_string)
 
-def write_batch(df):
-    engine = get_db_engine()
-    primary_key_column = 'study_uid'
+def write_batch(df, engine):
     primary_key_values = df[primary_key_column]
 
     print('Primary key values: ')
@@ -110,8 +140,9 @@ def write_batch(df):
     print('Batch written.')    
 
 def cron_job():
-    for batch in e2e_inference("test_data"):
-        write_batch(batch)
+    db_engine = get_db_engine()
+    for batch in e2e_inference("test_data", db_engine):
+        write_batch(batch, db_engine)
 
 if __name__ == '__main__':
     cron_job()
