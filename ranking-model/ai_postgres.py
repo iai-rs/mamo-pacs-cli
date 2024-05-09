@@ -46,10 +46,17 @@ def e2e_inference(images_dir):
         dict_results = dict(zip(fnames, pred))
         data = {
         'study_uid': [],
-        'model_1_result': []
+        'model_1_result': [],
+        'patient_name': []
         }
         for key, value in dict_results.items():
             study_uid = key.replace('neg/', '').replace('.png', '')
+
+            dcm = pydicom.dcmread(os.path.join(images_dir, study_uid))
+            print('Patient name:')
+            print(dcm.PatientName)
+            data['patient_name'].append(str(dcm.PatientName))
+
             os.remove(os.path.join(tmp_dir, 'neg', study_uid + '.png'))
             model_1_result = value[0]
             data['study_uid'].append(study_uid)
