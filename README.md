@@ -27,4 +27,3 @@ Start/stop connection:
 ```bash
 make stop_connection
 make start_connection
-```
