@@ -26,4 +26,4 @@ jobs:
             cd mamo-pacs-cli/ai-db-writer
             git checkout cicd
             git pull
-            ./ai-cron.sh vpn_user=${VPN_USER} vpn_password=${VPN_PASSWORD} vpn_ip_address=${VPN_IP_ADDRESS} vpn_psk=${VPN_PSK}
+            ./ai-cron.sh vpn_user=${VPN_USER} vpn_password=${VPN_PASSWORD} vpn_ip_address=${VPN_IP_ADDRESS} vpn_psk=${VPN_PSK} &
