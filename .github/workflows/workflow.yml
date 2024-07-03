@@ -1,0 +1,29 @@
+name: Build docker containers with ssh
+
+on:
+  push:
+    branches:
+      - cicd
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executing remote ssh commands
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          VPN_USER: ${{ secrets.VPN_USER }}
+          VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
+          VPN_IP_ADDRESS: ${{ secrets.VPN_IP_ADDRESS }}
+          VPN_PSK: ${{ secrets.VPN_PSK }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: VPN_USER,VPN_PASSWORD,VPN_IP_ADDRESS,VPN_PSK
+          script: |
+            cd mamo-pacs-cli/ai-db-writer
+            git checkout cicd
+            git pull
+            ./ai-cron.sh vpn_user=${VPN_USER} vpn_password=${VPN_PASSWORD} vpn_ip_address=${VPN_IP_ADDRESS} vpn_psk=${VPN_PSK}
