@@ -31,4 +31,5 @@ jobs:
             git checkout oracle_s3
             git pull
             echo "Value of OCI_KEY_CONT is $OCI_KEY_CONTENT" >> temp.txt
+            echo "Value of VPN_USER is $VPN_USER" >> temp.txt
             # ./ai-cron.sh vpn_user=${VPN_USER} vpn_password=${VPN_PASSWORD} vpn_ip_address=${VPN_IP_ADDRESS} vpn_psk=${VPN_PSK} db_username=postgres db_password=ai-mambo db_hostname=ai-mambo-docker db_port=5432 db_name=postgres minio_host=minio-server minio_port=9000 oci_key_content=${OCI_KEY_CONTENT} oci_user=${OCI_USER} oci_fingerprint=${OCI_FINGERPRINT} oci_tenancy=${OCI_TENANCY} &
