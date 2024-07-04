@@ -95,12 +95,15 @@ def insert_dicom_metadata(table_name, mammography_id, patient_name, patient_id, 
 
 def write_oracle_s3(bucket_name, png_filepath, png_image):
     # TODO: Add check if file is already uploaded
+    print(f"Saving to oracle s3: {png_filepath}")
     object_storage_client.put_object(
         namespace_name=oci_namespace,
         bucket_name=bucket_name,
         object_name=png_filepath,
         put_object_body=png_image
     )
+    print(f"Saved to oracle s3: {png_filepath}")
+    print(object_storage_client.__dict__)
 
 def write_minio(bucket_name, png_filepath, png_image):
         # Save to minio
