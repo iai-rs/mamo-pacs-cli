@@ -3,7 +3,7 @@ name: Build docker containers with ssh
 on:
   push:
     branches:
-      - cicd
+      - oracle_s3
 
 jobs:
   build-and-push:
@@ -26,4 +26,5 @@ jobs:
             cd mamo-pacs-cli/ai-db-writer
             git checkout cicd
             git pull
+            docker build --build-arg DB_USERNAME=postgres --build-arg DB_PASSWORD=ai-mambo --build-arg DB_HOSTNAME=ai-mambo-docker --build-arg DB_PORT=5432 --build-arg DB_NAME=postgres --build-arg MINIO_HOST=minio-server --build-arg MINIO_PORT=9000  -t ai-db-writer .
             ./ai-cron.sh vpn_user=${VPN_USER} vpn_password=${VPN_PASSWORD} vpn_ip_address=${VPN_IP_ADDRESS} vpn_psk=${VPN_PSK} &
