@@ -22,15 +22,15 @@ db_params = {
 
 
 # or key_content instead of key_file
-encoded_key_file = os.getenv("OCI_KEY_CONTENT")
-decoded_key_file = base64.b64decode(encoded_key_file).decode('utf-8')
+# encoded_key_file = os.getenv("OCI_KEY_CONTENT")
+# decoded_key_file = base64.b64decode(encoded_key_file).decode('utf-8')
 
 oci_config = {
     "user":os.getenv("OCI_USER"),
     "fingerprint":os.getent("OCI_FINGERPRINT"),
     "tenancy":os.getent("OCI_TENANCY"),
     "region":"eu-jovanovac-1",
-    "key_content":decoded_key_file,
+    "key_content":os.getenv("OCI_KEY_CONTENT"),
 }
 
 object_storage_client = oci.object_storage.ObjectStorageClient(oci_config)
