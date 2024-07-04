@@ -8,6 +8,8 @@ from minio.error import S3Error
 import re
 import psycopg2
 from psycopg2 import sql
+import oci
+import base64
 
 
 db_params = {
@@ -17,6 +19,22 @@ db_params = {
     'host': os.environ.get('DB_HOSTNAME'),
     'port': os.environ.get('DB_PORT')
 }
+
+
+# or key_content instead of key_file
+encoded_key_file = os.getenv("OCI_KEY_CONTENT")
+decoded_key_file = base64.b64decode(encoded_key_file).decode('utf-8')
+
+oci_config = {
+    "user":os.getenv("OCI_USER"),
+    "fingerprint":os.getent("OCI_FINGERPRINT"),
+    "tenancy":os.getent("OCI_TENANCY"),
+    "region":"eu-jovanovac-1",
+    "key_content":decoded_key_file,
+}
+
+object_storage_client = oci.object_storage.ObjectStorageClient(oci_config)
+oci_namespace = object_storage_client.get_namespace().data
 
 # Name of postgres table for dicom metadata
 table_name = 'dicom_metadata'
@@ -75,9 +93,18 @@ def insert_dicom_metadata(table_name, mammography_id, patient_name, patient_id, 
         if conn:
             conn.close()
 
+def write_oracle_s3(bucket_name, png_filepath, png_image):
+    # TODO: Add check if file is already uploaded
+    object_storage_client.put_object(
+        namespace_name=oci_namespace,
+        bucket_name=bucket_name,
+        object_name=png_filepath,
+        put_object_body=png_image
+    )
+
 def write_minio(bucket_name, png_filepath, png_image):
         # Save to minio
-        client = Minio(f"{os.environ.get('MINIO_HOST')}:{os.environ.get('MINIO_PORT')}", 
+        client = Minio(f"{os.environ.get('MINIO_HOST')}:{os.environ.get('MINIO_PORT')}",
                        access_key="minioadmin",
                        secret_key="m]7N1//[#,tj6J",
                        secure=False
@@ -124,6 +151,7 @@ def png_to_minio(dicom_folder, tmp_png_folder):
         # Save .png image locally
         cv2.imwrite(png_filepath, pixel_array)
 
+        write_oracle_s3('bucket-aimambo-images', png_filepath, pixel_array)
         write_minio('firstbucket', png_filepath, png_image)
 
         # Add metadata info to table. Not all dicom have all the data (default = ' ')

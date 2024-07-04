@@ -4,7 +4,7 @@ sys.path.append('../')
 from utils.LoadData import inference_loader
 from sqlalchemy import text, create_engine
 import os
-from dicom_to_png import png_to_minio, write_minio
+from dicom_to_png import png_to_minio, write_minio, write_oracle_s3
 from inference import process_img
 import cv2
 
@@ -27,7 +27,7 @@ def write_postgres(engine, study_uid, model_1_result):
     with engine.connect() as connection:
         with connection.begin():
             connection.execute(insert_statement, {'study_uid': study_uid, 'model_1_result': model_1_result})
-    
+
     print(f"Attempted to write row for {study_uid}.")
 
 def write_heatmap(heatmap, study_uid, tmp_heatmap_folder):
@@ -35,6 +35,7 @@ def write_heatmap(heatmap, study_uid, tmp_heatmap_folder):
     png_filepath = f'{tmp_heatmap_folder}/{png_image}'
     cv2.imwrite(png_filepath, heatmap)
     write_minio('heatmaps', png_filepath, png_image)
+    write_oracle_s3('bucket-aimambo-heatmaps', png_filepath, heatmap)
 
 dicom_folder = '/iors'
 tmp_png_folder = '/L-CAM/L_CAM_VGG16/tmp_png'
