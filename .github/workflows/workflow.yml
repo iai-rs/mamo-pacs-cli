@@ -26,5 +26,4 @@ jobs:
             cd mamo-pacs-cli/ai-db-writer
             git checkout cicd
             git pull
-            docker build --build-arg DB_USERNAME=postgres --build-arg DB_PASSWORD=ai-mambo --build-arg DB_HOSTNAME=ai-mambo-docker --build-arg DB_PORT=5432 --build-arg DB_NAME=postgres --build-arg MINIO_HOST=minio-server --build-arg MINIO_PORT=9000  -t ai-db-writer .
-            ./ai-cron.sh vpn_user=${VPN_USER} vpn_password=${VPN_PASSWORD} vpn_ip_address=${VPN_IP_ADDRESS} vpn_psk=${VPN_PSK} &
+            ./ai-cron.sh vpn_user=${VPN_USER} vpn_password=${VPN_PASSWORD} vpn_ip_address=${VPN_IP_ADDRESS} vpn_psk=${VPN_PSK} db_username=postgres db_password=ai-mambo db_hostname=ai-mambo-docker db_port=5432 db_name=postgres minio_host=minio-server minio_port=9000 &
