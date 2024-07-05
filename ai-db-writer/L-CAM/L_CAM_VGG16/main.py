@@ -42,8 +42,11 @@ tmp_png_folder = '/L-CAM/L_CAM_VGG16/tmp_png'
 tmp_heatmap_folder = '/L-CAM/L_CAM_VGG16/tmp_heatmap'
 
 def main():
+    print("Start main in ai-db-writter")
     engine = get_db_engine()
+    print("Set engine finished")
     for img_path, img in inference_loader(dicom_folder, 1):
+        print(f"ai-db-writter: {img_path}")
         study_uid = img_path[0].split(os.path.sep)[-1]
         model_1_result, heatmap = process_img(img)
         write_postgres(engine, study_uid, model_1_result)

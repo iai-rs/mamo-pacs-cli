@@ -22,9 +22,6 @@ db_params = {
 
 
 encoded_key_file = os.getenv("OCI_KEY_CONTENT")
-print("****************************")
-print(f"Encoded key file: {encoded_key_file}")
-print("****************************")
 decoded_key_file = base64.b64decode(encoded_key_file).decode('utf-8')
 
 oci_config = {
