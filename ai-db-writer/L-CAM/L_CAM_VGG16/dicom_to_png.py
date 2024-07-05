@@ -27,8 +27,8 @@ db_params = {
 
 oci_config = {
     "user":os.getenv("OCI_USER"),
-    "fingerprint":os.getent("OCI_FINGERPRINT"),
-    "tenancy":os.getent("OCI_TENANCY"),
+    "fingerprint":os.getenv("OCI_FINGERPRINT"),
+    "tenancy":os.getenv("OCI_TENANCY"),
     "region":"eu-jovanovac-1",
     "key_content":os.getenv("OCI_KEY_CONTENT"),
 }
