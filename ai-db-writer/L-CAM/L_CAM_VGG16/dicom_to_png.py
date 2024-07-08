@@ -92,18 +92,9 @@ def insert_dicom_metadata(table_name, mammography_id, patient_name, patient_id, 
         if conn:
             conn.close()
 
-def write_oracle_s3(bucket_name, png_filepath, png_image):
+def write_oracle_s3(bucket_name, png_filepath):
     # TODO: Add check if file is already uploaded
     print(f"Saving to oracle s3: {png_filepath}")
-    response = object_storage_client.put_object(
-        namespace_name=oci_namespace,
-        bucket_name=bucket_name,
-        object_name=png_filepath[1:],
-        put_object_body=png_image
-    )
-    print(f"Saved to oracle s3: {png_filepath}")
-    print(response.__dict__)
-    """
     with open(png_filepath, 'rb') as file_stream:
         response = object_storage_client.put_object(
             namespace_name=oci_namespace,
@@ -113,7 +104,6 @@ def write_oracle_s3(bucket_name, png_filepath, png_image):
         )
         print(f"Saved to oracle s3: {png_filepath}")
         print(response.__dict__)
-    """
 
 def write_minio(bucket_name, png_filepath, png_image):
         # Save to minio
@@ -160,10 +150,9 @@ def png_to_minio(dicom_folder, tmp_png_folder):
         png_filepath = os.path.join(tmp_png_folder, png_image)  # image path
         # Save .png image locally
         print(f"Saving image to path: {png_filepath}")
-        response = cv2.imwrite(png_filepath, pixel_array)
-        print(response)
+        cv2.imwrite(png_filepath, pixel_array)
 
-        write_oracle_s3('bucket-aimambo-images', png_filepath, pixel_array)
+        write_oracle_s3('bucket-aimambo-images', png_filepath)
         write_minio('firstbucket', png_filepath, png_image)
 
         # Add metadata info to table. Not all dicom have all the data (default = ' ')

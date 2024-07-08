@@ -35,21 +35,11 @@ def write_heatmap(heatmap, study_uid, tmp_heatmap_folder):
     png_filepath = f'{tmp_heatmap_folder}/{png_image}'
 
     directory = os.path.dirname(png_filepath)
-    print(f"Directory is: {directory}")
-    if not os.path.exists(directory) and directory != '':
-        print(f"Directory does not exist: {directory}")
-    else:
-        print(f"Directory exists: {directory}")
-    # Check if the file path is writable
-    if os.access(directory, os.W_OK):
-        print(f"Directory is writable: {directory}")
-    else:
-        print(f"Directory is not writable: {directory}")
 
     heatmap_image_saved = cv2.imwrite(png_filepath, heatmap)
     print(f"Image saved: {heatmap_image_saved}")
     write_minio('heatmaps', png_filepath, png_image)
-    write_oracle_s3('bucket-aimambo-heatmaps', png_filepath, heatmap)
+    write_oracle_s3('bucket-aimambo-heatmaps', png_filepath)
 
     # Remove the locally saved .png image
     os.remove(png_filepath)
