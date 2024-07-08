@@ -53,13 +53,14 @@ def write_heatmap(heatmap, study_uid, tmp_heatmap_folder):
 
 
 def print_directory_structure(start_path, indent_level=0):
+    print("Current Directory:", os.getcwd())
     for item in os.listdir(start_path):
         item_path = os.path.join(start_path, item)
         print('    ' * indent_level + '|-- ' + item)
         if os.path.isdir(item_path):
             print_directory_structure(item_path, indent_level + 1)
 
-def setup_folders(tmp_png_folder, tmp_heatmap_folder):
+def setup_tmp_folders(tmp_png_folder, tmp_heatmap_folder):
     os.makedirs(tmp_png_folder)
     os.makedirs(tmp_heatmap_folder)
 
