@@ -45,12 +45,14 @@ def main():
     print("Start main in ai-db-writter")
     engine = get_db_engine()
     print("Set engine finished")
+    """
     for img_path, img in inference_loader(dicom_folder, 1):
         print(f"ai-db-writter: {img_path}")
         study_uid = img_path[0].split(os.path.sep)[-1]
         model_1_result, heatmap = process_img(img)
         write_postgres(engine, study_uid, model_1_result)
         write_heatmap(heatmap, study_uid, tmp_heatmap_folder)
+    """
     png_to_minio(dicom_folder, tmp_png_folder)
 
 if __name__ == '__main__':
