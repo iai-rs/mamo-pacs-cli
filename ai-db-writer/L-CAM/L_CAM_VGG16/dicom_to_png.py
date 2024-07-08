@@ -103,7 +103,6 @@ def write_oracle_s3(bucket_name, png_filepath, png_image):
     # TODO: Add check if file is already uploaded
     print("************************* Print directory structure from write to s3")
     print_directory_structure(".")
-    print_directory_structure("/L-CAM")
     print(f"Saving to oracle s3: {png_filepath}")
     with open(png_filepath, 'rb') as file_stream:
         response = object_storage_client.put_object(
@@ -116,6 +115,8 @@ def write_oracle_s3(bucket_name, png_filepath, png_image):
         print(response.__dict__)
 
 def write_minio(bucket_name, png_filepath, png_image):
+        print("************************* Print directory structure from write to minio")
+        print_directory_structure(".")
         # Save to minio
         client = Minio(f"{os.environ.get('MINIO_HOST')}:{os.environ.get('MINIO_PORT')}",
                        access_key="minioadmin",
