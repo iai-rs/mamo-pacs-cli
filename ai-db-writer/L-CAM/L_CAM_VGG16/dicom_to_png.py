@@ -152,7 +152,9 @@ def png_to_minio(dicom_folder, tmp_png_folder):
         png_image = png_image + '.png'  # image name
         png_filepath = os.path.join(tmp_png_folder, png_image)  # image path
         # Save .png image locally
-        cv2.imwrite(png_filepath, pixel_array)
+        print(f"Saving image to path: {png_filepath}")
+        response = cv2.imwrite(png_filepath, pixel_array)
+        print(response)
 
         write_oracle_s3('bucket-aimambo-images', png_filepath, pixel_array)
         write_minio('firstbucket', png_filepath, png_image)
