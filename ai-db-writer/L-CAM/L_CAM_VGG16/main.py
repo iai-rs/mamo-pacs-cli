@@ -48,9 +48,11 @@ def write_heatmap(heatmap, study_uid, tmp_heatmap_folder):
 
     heatmap_image_saved = cv2.imwrite(png_filepath, heatmap)
     print(f"Image saved: {heatmap_image_saved}")
-    print_directory_structure(".")
     write_minio('heatmaps', png_filepath, png_image)
     write_oracle_s3('bucket-aimambo-heatmaps', png_filepath, heatmap)
+
+    # Remove the locally saved .png image
+    os.remove(png_filepath)
 
 
 def print_directory_structure(start_path, indent_level=0):

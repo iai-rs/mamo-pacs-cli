@@ -92,17 +92,8 @@ def insert_dicom_metadata(table_name, mammography_id, patient_name, patient_id, 
         if conn:
             conn.close()
 
-def print_directory_structure(start_path, indent_level=0):
-    for item in os.listdir(start_path):
-        item_path = os.path.join(start_path, item)
-        print('    ' * indent_level + '|-- ' + item)
-        if os.path.isdir(item_path):
-            print_directory_structure(item_path, indent_level + 1)
-
 def write_oracle_s3(bucket_name, png_filepath, png_image):
     # TODO: Add check if file is already uploaded
-    print("************************* Print directory structure from write to s3")
-    print_directory_structure(".")
     print(f"Saving to oracle s3: {png_filepath}")
     with open(png_filepath, 'rb') as file_stream:
         response = object_storage_client.put_object(
@@ -115,8 +106,6 @@ def write_oracle_s3(bucket_name, png_filepath, png_image):
         print(response.__dict__)
 
 def write_minio(bucket_name, png_filepath, png_image):
-        print("************************* Print directory structure from write to minio")
-        print_directory_structure(".")
         # Save to minio
         client = Minio(f"{os.environ.get('MINIO_HOST')}:{os.environ.get('MINIO_PORT')}",
                        access_key="minioadmin",
@@ -139,9 +128,6 @@ def write_minio(bucket_name, png_filepath, png_image):
             else:
                 # Other S3 errors
                 print(f"Error occurred: {e}")
-
-        # Remove the locally saved .png image
-        os.remove(png_filepath)
 
 def png_to_minio(dicom_folder, tmp_png_folder):
     """ Load dicom image, convert to .png format and store in minio server (if it is not already there)
