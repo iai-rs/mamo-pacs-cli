@@ -74,8 +74,11 @@ def main():
         print(f"ai-db-writter: {img_path}")
         study_uid = img_path[0].split(os.path.sep)[-1]
         model_1_result, heatmap = process_img(img)
-        write_postgres(engine, study_uid, model_1_result)
-        write_heatmap(heatmap, study_uid, tmp_heatmap_folder)
+        try:
+            write_postgres(engine, study_uid, model_1_result)
+            write_heatmap(heatmap, study_uid, tmp_heatmap_folder)
+        except Exception as e:
+            print(f"Error while writing to postgres/heatmap: {e}")
     png_to_minio(dicom_folder, tmp_png_folder)
 
 if __name__ == '__main__':
