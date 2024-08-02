@@ -82,6 +82,7 @@ def main():
     engine = get_db_engine()
     print("Set engine finished")
 
+    print("Start writing heatmaps with threads...")
     with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
         futures = []
         for img_path, img in inference_loader(dicom_folder, 1):
@@ -91,7 +92,14 @@ def main():
         # Wait for all threads to complete
         concurrent.futures.wait(futures)
 
-    png_to_minio(dicom_folder, tmp_png_folder)
+    print("Start writing png images with threads...")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+        futures = []
+        for filename in os.listdir(dicom_folder):
+            futures.append(
+                executor.submit(png_to_minio, dicom_folder, tmp_png_folder, filename)
+            )
+        concurrent.futures.wait(futures)
 
 if __name__ == '__main__':
     main()

@@ -129,29 +129,29 @@ def write_minio(bucket_name, png_filepath, png_image):
                 # Other S3 errors
                 print(f"Error occurred: {e}")
 
-def png_to_minio(dicom_folder, tmp_png_folder):
+def png_to_minio(dicom_folder, tmp_png_folder, filename):
     """ Load dicom image, convert to .png format and store in minio server (if it is not already there)
         Once the image is processed, add corresponding metadata to the sql table (using insert_dicom_metadata function)
     :param dicom_folder: path to dicom folder
     """
 
-    for filename in os.listdir(dicom_folder):
-        dicom_path = os.path.join(dicom_folder, filename)
-        dicom_image = pydicom.dcmread(dicom_path)
-        # Get the pixel array from the DICOM file
-        pixel_array = dicom_image.pixel_array
-        # Normalize the pixel values to be in the range 0-255 (for 8-bit greyscale)
-        pixel_array = ((pixel_array - np.min(pixel_array)) / (np.max(pixel_array) - np.min(pixel_array))) * 255.0
-        pixel_array = pixel_array.astype(np.uint8)
-        # Define path for .png image
-        png_image = os.path.basename(dicom_path)
-        png_image = re.sub(r'\.(dcm|dicom)$', '', png_image)
-        png_image = png_image + '.png'  # image name
-        png_filepath = os.path.join(tmp_png_folder, png_image)  # image path
-        # Save .png image locally
-        print(f"Saving image to path: {png_filepath}")
-        cv2.imwrite(png_filepath, pixel_array)
+    dicom_path = os.path.join(dicom_folder, filename)
+    dicom_image = pydicom.dcmread(dicom_path)
+    # Get the pixel array from the DICOM file
+    pixel_array = dicom_image.pixel_array
+    # Normalize the pixel values to be in the range 0-255 (for 8-bit greyscale)
+    pixel_array = ((pixel_array - np.min(pixel_array)) / (np.max(pixel_array) - np.min(pixel_array))) * 255.0
+    pixel_array = pixel_array.astype(np.uint8)
+    # Define path for .png image
+    png_image = os.path.basename(dicom_path)
+    png_image = re.sub(r'\.(dcm|dicom)$', '', png_image)
+    png_image = png_image + '.png'  # image name
+    png_filepath = os.path.join(tmp_png_folder, png_image)  # image path
+    # Save .png image locally
+    print(f"Saving image to path: {png_filepath}")
+    cv2.imwrite(png_filepath, pixel_array)
 
+    try:
         write_oracle_s3('bucket-aimambo-images', png_filepath)
         write_minio('firstbucket', png_filepath, png_image)
 
@@ -171,6 +171,8 @@ def png_to_minio(dicom_folder, tmp_png_folder):
             get_attr(dicom_image, 'ManufacturerModelName', None),
             get_attr(dicom_image, 'InstitutionName', None)
         )
+    except Exception as e:
+        print(f"Error while writing png image: {e}")
 
 
 if __name__ == '__main__':
