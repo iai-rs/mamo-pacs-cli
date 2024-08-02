@@ -7,6 +7,7 @@ import os
 from dicom_to_png import png_to_minio, write_minio, write_oracle_s3
 from inference import process_img
 import cv2
+import concurrent.futures
 
 def get_db_engine():
     username = os.environ.get('DB_USERNAME')
@@ -56,6 +57,16 @@ def setup_tmp_folders(tmp_png_folder, tmp_heatmap_folder):
     os.makedirs(tmp_png_folder)
     os.makedirs(tmp_heatmap_folder)
 
+def process_and_write(img_path, img, engine, tmp_heatmap_folder):
+    print(f"ai-db-writter: {img_path}")
+    study_uid = img_path[0].split(os.path.sep)[-1]
+    model_1_result, heatmap = process_img(img)
+    try:
+        write_heatmap(heatmap, study_uid, tmp_heatmap_folder)
+        write_postgres(engine, study_uid, model_1_result)
+    except Exception as e:
+        print(f"Error while writing to postgres/heatmap: {e}")
+
 dicom_folder = '/iors'
 tmp_png_folder = '/L-CAM/L_CAM_VGG16/tmp_png'
 tmp_heatmap_folder = '/L-CAM/L_CAM_VGG16/tmp_heatmap'
@@ -70,15 +81,16 @@ def main():
     print_directory_structure('.')
     engine = get_db_engine()
     print("Set engine finished")
-    for img_path, img in inference_loader(dicom_folder, 1):
-        print(f"ai-db-writter: {img_path}")
-        study_uid = img_path[0].split(os.path.sep)[-1]
-        model_1_result, heatmap = process_img(img)
-        try:
-            write_postgres(engine, study_uid, model_1_result)
-            write_heatmap(heatmap, study_uid, tmp_heatmap_folder)
-        except Exception as e:
-            print(f"Error while writing to postgres/heatmap: {e}")
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+        futures = []
+        for img_path, img in inference_loader(dicom_folder, 1):
+            futures.append(
+                executor.submit(process_and_write, img_path, img, engine, tmp_heatmap_folder)
+            )
+        # Wait for all threads to complete
+        concurrent.futures.wait(futures)
+
     png_to_minio(dicom_folder, tmp_png_folder)
 
 if __name__ == '__main__':
