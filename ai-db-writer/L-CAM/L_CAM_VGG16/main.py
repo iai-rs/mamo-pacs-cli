@@ -35,23 +35,12 @@ def write_heatmap(heatmap, study_uid, tmp_heatmap_folder):
     png_image = f'{study_uid}.png'
     png_filepath = f'{tmp_heatmap_folder}/{png_image}'
 
-    directory = os.path.dirname(png_filepath)
-
     heatmap_image_saved = cv2.imwrite(png_filepath, heatmap)
-    print(f"Image saved: {heatmap_image_saved}")
     write_minio('heatmaps', png_filepath, png_image)
     write_oracle_s3('bucket-aimambo-heatmaps', png_filepath)
 
     # Remove the locally saved .png image
     os.remove(png_filepath)
-
-
-def print_directory_structure(start_path, indent_level=0):
-    for item in os.listdir(start_path):
-        item_path = os.path.join(start_path, item)
-        print('    ' * indent_level + '|-- ' + item)
-        if os.path.isdir(item_path):
-            print_directory_structure(item_path, indent_level + 1)
 
 def setup_tmp_folders(tmp_png_folder, tmp_heatmap_folder):
     os.makedirs(tmp_png_folder)
@@ -65,7 +54,7 @@ def process_and_write(img_path, img, engine, tmp_heatmap_folder):
         write_heatmap(heatmap, study_uid, tmp_heatmap_folder)
         write_postgres(engine, study_uid, model_1_result)
     except Exception as e:
-        print(f"Error while writing to postgres/heatmap: {e}")
+        print(f"Error while writing {img_path} to postgres/heatmap: {e}")
 
 dicom_folder = '/iors'
 tmp_png_folder = '/L-CAM/L_CAM_VGG16/tmp_png'
@@ -73,12 +62,8 @@ tmp_heatmap_folder = '/L-CAM/L_CAM_VGG16/tmp_heatmap'
 
 def main():
     print("Start main in ai-db-writter")
-    print("Directory structure:")
-    print_directory_structure('.')
     print("Setup folders")
     setup_tmp_folders(tmp_png_folder, tmp_heatmap_folder)
-    print("Directory structure:")
-    print_directory_structure('.')
     engine = get_db_engine()
     print("Set engine finished")
 
