@@ -94,15 +94,16 @@ def insert_dicom_metadata(table_name, mammography_id, patient_name, patient_id, 
 
 def write_oracle_s3(bucket_name, png_filepath):
     # TODO: Add check if file is already uploaded
+    png_name = os.path.basename(png_filepath)
     with open(png_filepath, 'rb') as file_stream:
         try:
             response = object_storage_client.put_object(
                 namespace_name=oci_namespace,
                 bucket_name=bucket_name,
-                object_name=png_filepath[1:],
+                object_name=png_name,
                 put_object_body=file_stream
             )
-            print(f"Saved {png_filepath} to oracle s3")
+            print(f"Saved {png_name} to oracle s3")
         except Exception as e:
             print(f"Error while saving to oracle s3: {e}")
 
