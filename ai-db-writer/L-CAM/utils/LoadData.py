@@ -8,6 +8,7 @@ from torch.utils.data import Dataset, DataLoader
 import cv2
 import numpy as np
 import os
+from preprocess import keep_only_breast
 
 def data_loader(args, test_path=False, segmentation=False):
 
@@ -100,11 +101,13 @@ def inference_loader(img_dir, batch_size):
             img_path = self.image_paths[idx]
 
             # Load and preprocess the image
-            image = self.read_img(img_path)
-            image = self.preprocess(image)
+            original = self.read_img(img_path)
+            only_breast_image, _ = keep_only_breast(original)
+            fully_preprocessed = self.preprocess(only_breast_image)
+            original = self.preprocess(original)
 
             # Return image path and image tensor
-            return img_path, image
+            return img_path, fully_preprocessed, original
 
         def read_img(self, path):
             # Load the image from DICOM file
