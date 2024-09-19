@@ -9,6 +9,7 @@ from dicom_to_png import png_to_minio, write_minio, write_oracle_s3
 from inference import process_img
 import cv2
 import concurrent.futures
+from skimage.filters import threshold_otsu
 
 
 def get_db_engine():
