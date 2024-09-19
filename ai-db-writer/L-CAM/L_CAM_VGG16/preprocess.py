@@ -1,7 +1,6 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-from skimage.filters import threshold_otsu
 
 
 def add_one_if_even(number):
@@ -10,8 +9,12 @@ def add_one_if_even(number):
     else:
         return number
 
+
 def create_kernel(img, factor):
-    return add_one_if_even(img.shape[0] // factor), add_one_if_even(img.shape[1] // factor)
+    return add_one_if_even(img.shape[0] // factor), add_one_if_even(
+        img.shape[1] // factor
+    )
+
 
 def binarize(img):
     b_img = img.astype(np.float32)
@@ -20,7 +23,9 @@ def binarize(img):
 
     blured = cv2.GaussianBlur(b_img, create_kernel(b_img, 100), 0)
 
-    otsu_tr = threshold_otsu(blured) * 0.5 #0.175
+    from skimage.filters import threshold_otsu
+
+    otsu_tr = threshold_otsu(blured) * 0.5  # 0.175
     mask = np.where(blured >= otsu_tr, 1, 0).astype(np.uint8)
 
     return mask
@@ -32,11 +37,13 @@ def dilate(mask, factor):
 
     return dilated_mask
 
+
 def erode(mask):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, create_kernel(mask, 500))
     eroded_mask = cv2.morphologyEx(mask, cv2.MORPH_ERODE, kernel)
 
     return eroded_mask
+
 
 def keep_largest_blob(mask):
     # Find contours in the binary mask
@@ -63,6 +70,7 @@ def keep_only_breast(image):
     mask = get_breast_mask(image, 10)
     masked_image = image * mask
     return masked_image, mask
+
 
 def apply_clahe(image):
     clahe = cv2.createCLAHE(clipLimit=5)
@@ -96,7 +104,8 @@ def should_flip(image):
 
     return left_sum < right_sum
 
-def pad(image, ar=1152/896):
+
+def pad(image, ar=1152 / 896):
     n_rows, n_cols = image.shape
     image_ratio = n_rows / n_cols
     if image_ratio == ar:
@@ -110,13 +119,15 @@ def pad(image, ar=1152/896):
     ret_val[:n_rows, :n_cols] = image
     return ret_val
 
+
 def negate_if_should(image):
     num_bins = 20
-    hist, bins = np.histogram(image.ravel(), bins=num_bins, range=[image.min(), image.max()])
+    hist, bins = np.histogram(
+        image.ravel(), bins=num_bins, range=[image.min(), image.max()]
+    )
     max_bin = np.argmax(hist)
 
     return image if max_bin < (num_bins / 2) else np.max(image) - image
-
 
 
 def preprocess_scan_with_mask(image, mass_mask):
@@ -131,7 +142,7 @@ def preprocess_scan_with_mask(image, mass_mask):
         breast_mask = np.fliplr(breast_mask)
         mass_mask = np.fliplr(mass_mask)
 
-    #image = apply_clahe(image)
+    # image = apply_clahe(image)
     image = image * breast_mask  # clahe manages to change black to slight gray
     shape_before_padding = image.shape
     image = pad(image)
@@ -146,12 +157,14 @@ def preprocess_scan(image):
     image, _, spatial_changes = preprocess_scan_with_mask(image, image)
     return image, spatial_changes
 
+
 def get_edge_contours(image):
     mask = get_breast_mask(image)
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     edge_image = np.zeros_like(mask)
     cv2.drawContours(edge_image, contours, -1, (1), 1)
     return edge_image
+
 
 def reverse_spatial_changes(image, spatial_changes):
     borders, flip, shape_before_padding, shape = spatial_changes
