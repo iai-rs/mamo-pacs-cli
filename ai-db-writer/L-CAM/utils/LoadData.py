@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 import os
 from skimage.filters import threshold_otsu
-from preprocess import keep_only_breast
+from preprocess import keep_only_breast, negate_if_should
 
 
 def data_loader(args, test_path=False, segmentation=False):
@@ -121,7 +121,8 @@ def inference_loader(img_dir, batch_size):
 
             # Load and preprocess the image
             original = self.read_img(img_path)
-            only_breast_image, _ = keep_only_breast(original)
+            negated = negate_if_should(original)
+            only_breast_image, _ = keep_only_breast(negated)
             fully_preprocessed = self.preprocess(only_breast_image)
             original = self.preprocess(original)
 
