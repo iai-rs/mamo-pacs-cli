@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 openconnect  -y #re
 COPY ./requirements.txt ./requirements.txt 
 RUN pip install -r requirements.txt
 RUN yes | apt-get install vim
+RUN pip install vpn-slice
 
 # ENV DB_USERNAME=postgres \
     # DB_PASSWORD=ai-mambo \
