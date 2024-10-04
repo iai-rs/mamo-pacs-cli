@@ -58,7 +58,7 @@ def write_heatmap(heatmap, study_uid, tmp_heatmap_folder):
     png_filepath = f"{tmp_heatmap_folder}/{png_image}"
 
     heatmap_image_saved = cv2.imwrite(png_filepath, heatmap)
-    write_minio("heatmaps", png_filepath, png_image)
+    # write_minio("heatmaps", png_filepath, png_image)
     write_oracle_s3("bucket-aimambo-heatmaps", png_filepath)
 
     # Remove the locally saved .png image
@@ -78,7 +78,7 @@ def process_and_write(
     model_1_result, heatmap = process_img(preprocessed, original)
     try:
         write_heatmap(heatmap, study_uid, tmp_heatmap_folder)
-        write_postgres(ntp_engine, study_uid, model_1_result)
+        # write_postgres(ntp_engine, study_uid, model_1_result)
         write_postgres(ite_engine, study_uid, model_1_result)
     except Exception as e:
         print(f"Error while writing {img_path} to postgres/heatmap: {e}")
