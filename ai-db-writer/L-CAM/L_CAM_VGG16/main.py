@@ -12,12 +12,24 @@ import concurrent.futures
 from skimage.filters import threshold_otsu
 
 
-def get_db_engine():
+def get_ntp_db_engine():
     username = os.environ.get("DB_USERNAME")
     password = os.environ.get("DB_PASSWORD")
     hostname = os.environ.get("DB_HOSTNAME")
     port = os.environ.get("DB_PORT")
     database_name = os.environ.get("DB_NAME")
+    connection_string = (
+        f"postgresql://{username}:{password}@{hostname}:{port}/{database_name}"
+    )
+    return create_engine(connection_string)
+
+
+def get_ite_db_engine():
+    username = os.environ.get("ITE_DB_USERNAME")
+    password = os.environ.get("ITE_DB_PASSWORD")
+    hostname = os.environ.get("ITE_DB_HOSTNAME")
+    port = os.environ.get("ITE_DB_PORT")
+    database_name = os.environ.get("ITE_DB_NAME")
     connection_string = (
         f"postgresql://{username}:{password}@{hostname}:{port}/{database_name}"
     )
@@ -58,13 +70,16 @@ def setup_tmp_folders(tmp_png_folder, tmp_heatmap_folder):
     os.makedirs(tmp_heatmap_folder)
 
 
-def process_and_write(img_path, preprocessed, original, engine, tmp_heatmap_folder):
+def process_and_write(
+    img_path, preprocessed, original, ntp_engine, ite_engine, tmp_heatmap_folder
+):
     print(f"ai-db-writter: {img_path}")
     study_uid = img_path[0].split(os.path.sep)[-1]
     model_1_result, heatmap = process_img(preprocessed, original)
     try:
         write_heatmap(heatmap, study_uid, tmp_heatmap_folder)
-        write_postgres(engine, study_uid, model_1_result)
+        write_postgres(ntp_engine, study_uid, model_1_result)
+        write_postgres(ite_engine, study_uid, model_1_result)
     except Exception as e:
         print(f"Error while writing {img_path} to postgres/heatmap: {e}")
 
@@ -78,7 +93,8 @@ def main():
     print("Start main in ai-db-writter")
     print("Setup folders")
     setup_tmp_folders(tmp_png_folder, tmp_heatmap_folder)
-    engine = get_db_engine()
+    ntp_engine = get_ntp_db_engine()
+    ite_engine = get_ite_db_engine()
     print("Set engine finished")
 
     print("Start writing heatmaps with threads...")
@@ -91,7 +107,8 @@ def main():
                     img_path,
                     preprocessed,
                     original,
-                    engine,
+                    ntp_engine,
+                    ite_engine,
                     tmp_heatmap_folder,
                 )
             )

@@ -20,14 +20,17 @@ jobs:
           OCI_USER: ${{ secrets.OCI_USER }}
           OCI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
           OCI_TENANCY: ${{ secrets.OCI_TENANCY }}
+          ITE_VPN_PASSWORD: ${{ secrets.ITE_VPN_PASSWORD }}
+          ITE_VPN_URL: ${{ secrets.ITE_VPN_URL }}
+          ITE_VPN_USER: ${{ secrets.ITE_VPN_USER }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
-          envs: VPN_USER,VPN_PASSWORD,VPN_IP_ADDRESS,VPN_PSK,OCI_KEY_CONTENT,OCI_USER,OCI_FINGERPRINT,OCI_TENANCY
+          envs: VPN_USER,VPN_PASSWORD,VPN_IP_ADDRESS,VPN_PSK,OCI_KEY_CONTENT,OCI_USER,OCI_FINGERPRINT,OCI_TENANCY,ITE_VPN_PASSWORD,ITE_VPN_URL,ITE_VPN_USER
           script: |
             cd mamo-pacs-cli/ai-db-writer
             git checkout oracle_s3
             git pull
-            ./ai-cron.sh vpn_user=${VPN_USER} vpn_password=${VPN_PASSWORD} vpn_ip_address=${VPN_IP_ADDRESS} vpn_psk=${VPN_PSK} db_username=postgres db_password=ai-mambo db_hostname=ai-mambo-docker db_port=5432 db_name=postgres minio_host=minio-server minio_port=9000 oci_key_content=${OCI_KEY_CONTENT} oci_user=${OCI_USER} oci_fingerprint=${OCI_FINGERPRINT} oci_tenancy=${OCI_TENANCY} &
+            ./ai-cron.sh vpn_user=${VPN_USER} vpn_password=${VPN_PASSWORD} vpn_ip_address=${VPN_IP_ADDRESS} vpn_psk=${VPN_PSK} db_username=postgres db_password=ai-mambo db_hostname=ai-mambo-docker db_port=5432 db_name=postgres minio_host=minio-server minio_port=9000 oci_key_content=${OCI_KEY_CONTENT} oci_user=${OCI_USER} oci_fingerprint=${OCI_FINGERPRINT} oci_tenancy=${OCI_TENANCY} ite_vpn_password=${ITE_VPN_PASSWORD} ite_vpn_url=${ITE_VPN_URL} ite_vpn_user=${ITE_VPN_USER} &
