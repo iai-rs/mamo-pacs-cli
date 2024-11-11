@@ -9,6 +9,8 @@ makefile=/home/baltic/mamo-pacs-cli/
                                                                                         
 touch $logfile                                                                          
 exec > $logfile 2>&1                                                                    
+
+echo "Starting ai-cron script..."
                                                                                         
 vpn_user=""                                                                             
 vpn_password=""                                                                         
