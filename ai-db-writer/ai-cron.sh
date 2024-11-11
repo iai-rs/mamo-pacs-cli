@@ -1,5 +1,12 @@
 #!/bin/bash                                                                             
                                                                                         
+storescp_port=55613                                                                     
+dicom_directory=/home/baltic/TMP_DIR_FOR_DICOMS                                         
+logs_directory=/home/baltic/cron_logs                                                   
+datetime=$(date '+%Y-%m-%d-%H-%M-%S')                                                   
+logfile="$logs_directory/$datetime.txt"                                                 
+makefile=/home/baltic/mamo-pacs-cli/                                                    
+                                                                                        
 touch $logfile                                                                          
 exec > $logfile 2>&1                                                                    
                                                                                         
@@ -112,13 +119,6 @@ db_username=value db_password=value db_hostname=value db_port=value db_name=valu
 minio_host=value minio_port=value oci_key_content=value oci_user=value oci_fingerprint=value oci_tenancy=value"
   exit 1                                                                                
 fi                                                                                      
-                                                                                        
-storescp_port=55613                                                                     
-dicom_directory=/home/baltic/TMP_DIR_FOR_DICOMS                                         
-logs_directory=/home/baltic/cron_logs                                                   
-datetime=$(date '+%Y-%m-%d-%H-%M-%S')                                                   
-logfile="$logs_directory/$datetime.txt"                                                 
-makefile=/home/baltic/mamo-pacs-cli/                                                    
                                                                                         
 echo $datetime                                                                          
                                                                                         
