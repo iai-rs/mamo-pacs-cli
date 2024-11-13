@@ -122,25 +122,6 @@ minio_host=value minio_port=value oci_key_content=value oci_user=value oci_finge
   exit 1
 fi
 
-vpn_user=""
-vpn_password=""
-vpn_ip_address=""
-vpn_psk=""
-db_username=""
-db_password=""
-db_hostname=""
-db_port=""
-db_name=""
-minio_host=""
-minio_port=""
-oci_key_content=""
-oci_user=""
-oci_fingerprint=""
-oci_tenancy=""
-ite_vpn_url=""
-ite_vpn_user=""
-ite_vpn_password=""
-
 echo $datetime
 
 mkdir $dicom_directory
