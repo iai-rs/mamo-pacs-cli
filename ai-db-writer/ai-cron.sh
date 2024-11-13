@@ -159,35 +159,39 @@ docker run -v $dicom_directory:/data --name storescp-container --network host st
 make -C $makefile run vpn_user=$vpn_user vpn_password=$vpn_password vpn_ip_address=$vpn_ip_address vpn_psk=$vpn_psk
 
 docker build -t ai-db-writer .
-docker run --name ai-db --privileged --cap-add NET_ADMIN -v $dicom_directory:/iors \
-    -e DB_USERNAME="$db_username" \
-    -e DB_PASSWORD="$db_password" \
-    -e DB_HOSTNAME="$db_hostname" \
-    -e DB_PORT="$db_port" \
-    -e DB_NAME="$db_name" \
-    -e MINIO_HOST="$minio_host" \
-    -e MINIO_PORT="$minio_port" \
-    -e OCI_KEY_CONTENT="$oci_key_content" \
-    -e OCI_USER="$oci_user" \
-    -e OCI_FINGERPRINT="$oci_fingerprint" \
-    -e OCI_TENANCY="$oci_tenancy" \
-    -e ITE_VPN_URL="$ite_vpn_url" \
-    -e ITE_VPN_USER="$ite_vpn_user" \
-    -e ITE_VPN_PASSWORD="$ite_vpn_password" \
-    -e ITE_DB_USERNAME="$ite_db_username" \
-    -e ITE_DB_PASSWORD="$ite_db_password" \
-    -e ITE_DB_HOSTNAME="$ite_db_hostname" \
-    -e ITE_DB_PORT="$ite_db_port" \
-    -e ITE_DB_NAME="$ite_db_name" \
-    -d ai-db-writer
+# docker run --name ai-db --privileged --cap-add NET_ADMIN -v $dicom_directory:/iors \
+    # -e DB_USERNAME="$db_username" \
+    # -e DB_PASSWORD="$db_password" \
+    # -e DB_HOSTNAME="$db_hostname" \
+    # -e DB_PORT="$db_port" \
+    # -e DB_NAME="$db_name" \
+    # -e MINIO_HOST="$minio_host" \
+    # -e MINIO_PORT="$minio_port" \
+    # -e OCI_KEY_CONTENT="$oci_key_content" \
+    # -e OCI_USER="$oci_user" \
+    # -e OCI_FINGERPRINT="$oci_fingerprint" \
+    # -e OCI_TENANCY="$oci_tenancy" \
+    # -e ITE_VPN_URL="$ite_vpn_url" \
+    # -e ITE_VPN_USER="$ite_vpn_user" \
+    # -e ITE_VPN_PASSWORD="$ite_vpn_password" \
+    # -e ITE_DB_USERNAME="$ite_db_username" \
+    # -e ITE_DB_PASSWORD="$ite_db_password" \
+    # -e ITE_DB_HOSTNAME="$ite_db_hostname" \
+    # -e ITE_DB_PORT="$ite_db_port" \
+    # -e ITE_DB_NAME="$ite_db_name" \
+    # -d ai-db-writer
 
-docker run --name pg-tunnel-c -p 5434:5434 --privileged --cap-add NET_ADMIN \
-    -e ITE_VPN_URL="$ite_vpn_url" \
-    -e ITE_VPN_USER="$ite_vpn_user" \
-    -e ITE_VPN_PASSWORD="$ite_vpn_password" \
-    -e ITE_DB_HOSTNAME="$ite_db_hostname" \
-    -e ITE_DB_PORT="$ite_db_port" \
-    pg-tunnel-i &
+docker run --name ai-db --privileged --cap-add NET_ADMIN -v $dicom_directory:/iors -e DB_USERNAME="$db_username" -e DB_PASSWORD="$db_password" -e DB_HOSTNAME="$db_hostname" -e DB_PORT="$db_port" -e DB_NAME="$db_name" -e MINIO_HOST="$minio_host" -e MINIO_PORT="$minio_port" -e OCI_KEY_CONTENT="$oci_key_content" -e OCI_USER="$oci_user" -e OCI_FINGERPRINT="$oci_fingerprint" -e OCI_TENANCY="$oci_tenancy" -e ITE_VPN_URL="$ite_vpn_url" -e ITE_VPN_USER="$ite_vpn_user" -e ITE_VPN_PASSWORD="$ite_vpn_password" -e ITE_DB_USERNAME="$ite_db_username" -e ITE_DB_PASSWORD="$ite_db_password" -e ITE_DB_HOSTNAME="$ite_db_hostname" -e ITE_DB_PORT="$ite_db_port" -e ITE_DB_NAME="$ite_db_name" -d ai-db-writer
+
+# docker run --name pg-tunnel-c -p 5434:5434 --privileged --cap-add NET_ADMIN \
+    # -e ITE_VPN_URL="$ite_vpn_url" \
+    # -e ITE_VPN_USER="$ite_vpn_user" \
+    # -e ITE_VPN_PASSWORD="$ite_vpn_password" \
+    # -e ITE_DB_HOSTNAME="$ite_db_hostname" \
+    # -e ITE_DB_PORT="$ite_db_port" \
+    # pg-tunnel-i &
+
+docker run --name pg-tunnel-c -p 5434:5434 --privileged --cap-add NET_ADMIN -e ITE_VPN_URL="$ite_vpn_url" -e ITE_VPN_USER="$ite_vpn_user" -e ITE_VPN_PASSWORD="$ite_vpn_password" -e ITE_DB_HOSTNAME="$ite_db_hostname" -e ITE_DB_PORT="$ite_db_port" pg-tunnel-i &
 
 echo "Connecting containers to docker network..."
 
