@@ -135,7 +135,7 @@ docker rm -f pg-tunnel-c
 
 echo "Running new containers..."
 
-#docker run -v $dicom_directory:/data --name storescp-container --network host storescp-image &
+docker run -v $dicom_directory:/data --name storescp-container --network host storescp-image &
 
 make -C $makefile run vpn_user=$vpn_user vpn_password=$vpn_password vpn_ip_address=$vpn_ip_address vpn_psk=$vpn_psk
 
