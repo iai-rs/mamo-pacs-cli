@@ -135,42 +135,13 @@ docker rm -f pg-tunnel-c
 
 echo "Running new containers..."
 
-docker run -v $dicom_directory:/data --name storescp-container --network host storescp-image &
+#docker run -v $dicom_directory:/data --name storescp-container --network host storescp-image &
 
 make -C $makefile run vpn_user=$vpn_user vpn_password=$vpn_password vpn_ip_address=$vpn_ip_address vpn_psk=$vpn_psk
 
 docker build -t ai-db-writer .
-# docker run --name ai-db --privileged --cap-add NET_ADMIN -v $dicom_directory:/iors \
-    # -e DB_USERNAME="$db_username" \
-    # -e DB_PASSWORD="$db_password" \
-    # -e DB_HOSTNAME="$db_hostname" \
-    # -e DB_PORT="$db_port" \
-    # -e DB_NAME="$db_name" \
-    # -e MINIO_HOST="$minio_host" \
-    # -e MINIO_PORT="$minio_port" \
-    # -e OCI_KEY_CONTENT="$oci_key_content" \
-    # -e OCI_USER="$oci_user" \
-    # -e OCI_FINGERPRINT="$oci_fingerprint" \
-    # -e OCI_TENANCY="$oci_tenancy" \
-    # -e ITE_VPN_URL="$ite_vpn_url" \
-    # -e ITE_VPN_USER="$ite_vpn_user" \
-    # -e ITE_VPN_PASSWORD="$ite_vpn_password" \
-    # -e ITE_DB_USERNAME="$ite_db_username" \
-    # -e ITE_DB_PASSWORD="$ite_db_password" \
-    # -e ITE_DB_HOSTNAME="$ite_db_hostname" \
-    # -e ITE_DB_PORT="$ite_db_port" \
-    # -e ITE_DB_NAME="$ite_db_name" \
-    # -d ai-db-writer
 
-docker run --name ai-db --privileged --cap-add NET_ADMIN -v $dicom_directory:/iors -e DB_USERNAME="$db_username" -e DB_PASSWORD="$db_password" -e DB_HOSTNAME="$db_hostname" -e DB_PORT="$db_port" -e DB_NAME="$db_name" -e MINIO_HOST="$minio_host" -e MINIO_PORT="$minio_port" -e OCI_KEY_CONTENT="$oci_key_content" -e OCI_USER="$oci_user" -e OCI_FINGERPRINT="$oci_fingerprint" -e OCI_TENANCY="$oci_tenancy" -e ITE_VPN_URL="$ite_vpn_url" -e ITE_VPN_USER="$ite_vpn_user" -e ITE_VPN_PASSWORD="$ite_vpn_password" -e ITE_DB_USERNAME="$ite_db_username" -e ITE_DB_PASSWORD="$ite_db_password" -e ITE_DB_HOSTNAME="$ite_db_hostname" -e ITE_DB_PORT="$ite_db_port" -e ITE_DB_NAME="$ite_db_name" -d ai-db-writer
-
-# docker run --name pg-tunnel-c -p 5434:5434 --privileged --cap-add NET_ADMIN \
-    # -e ITE_VPN_URL="$ite_vpn_url" \
-    # -e ITE_VPN_USER="$ite_vpn_user" \
-    # -e ITE_VPN_PASSWORD="$ite_vpn_password" \
-    # -e ITE_DB_HOSTNAME="$ite_db_hostname" \
-    # -e ITE_DB_PORT="$ite_db_port" \
-    # pg-tunnel-i &
+docker run --name ai-db --privileged --cap-add NET_ADMIN -v $dicom_directory:/iors -e DB_USERNAME="$db_username" -e DB_PASSWORD="$db_password" -e DB_HOSTNAME="$db_hostname" -e DB_PORT="$db_port" -e DB_NAME="$db_name" -e MINIO_HOST="$minio_host" -e MINIO_PORT="$minio_port" -e OCI_KEY_CONTENT="$oci_key_content" -e OCI_USER="$oci_user" -e OCI_FINGERPRINT="$oci_fingerprint" -e OCI_TENANCY="$oci_tenancy" -e ITE_VPN_URL="$ite_vpn_url" -e ITE_VPN_USER="$ite_vpn_user" -e ITE_VPN_PASSWORD="$ite_vpn_password" -e ITE_DB_USERNAME="$ite_db_username" -e ITE_DB_PASSWORD="$ite_db_password" -e ITE_DB_HOSTNAME="pg-tunnel-c" -e ITE_DB_PORT="5434" -e ITE_DB_NAME="$ite_db_name" -d ai-db-writer
 
 docker run --name pg-tunnel-c -p 5434:5434 --privileged --cap-add NET_ADMIN -e ITE_VPN_URL="$ite_vpn_url" -e ITE_VPN_USER="$ite_vpn_user" -e ITE_VPN_PASSWORD="$ite_vpn_password" -e ITE_DB_HOSTNAME="$ite_db_hostname" -e ITE_DB_PORT="$ite_db_port" pg-tunnel-i &
 
@@ -184,9 +155,19 @@ echo "Downloading images. Started at: $(date '+%Y-%m-%d-%H-%M-%S')"
 
 docker exec myvpncontainer python3 /home/cron_new_dicom.py
 
+echo "Stopping pg-tunnel-c."
+
+docker rm -f pg-tunnel-c
+
 echo "Checking for outliers. Started at: $(date '+%Y-%m-%d-%H-%M-%S')"
 
 /home/jovisic/mamo-pacs-cli/outlier-docker/venv/bin/python /home/jovisic/mamo-pacs-cli/outlier-docker/clear_outliers.py $dicom_directory
+
+echo "Starting pg-tunnel-c again and connecting it to docker network..."
+
+docker run --name pg-tunnel-c -p 5434:5434 --privileged --cap-add NET_ADMIN -e ITE_VPN_URL="$ite_vpn_url" -e ITE_VPN_USER="$ite_vpn_user" -e ITE_VPN_PASSWORD="$ite_vpn_password" -e ITE_DB_HOSTNAME="$ite_db_hostname" -e ITE_DB_PORT="$ite_db_port" pg-tunnel-i &
+sleep 30
+docker network connect mamo_network pg-tunnel-c
 
 echo "Doing AI and writing to DB. Started at: $(date '+%Y-%m-%d-%H-%M-%S')"
 

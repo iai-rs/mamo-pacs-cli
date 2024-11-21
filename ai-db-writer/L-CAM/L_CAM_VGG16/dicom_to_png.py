@@ -206,7 +206,7 @@ def png_to_minio(dicom_folder, tmp_png_folder, filename):
 
     try:
         write_oracle_s3("bucket-aimambo-images", png_filepath)
-        write_minio("firstbucket", png_filepath, png_image)
+        #write_minio("firstbucket", png_filepath, png_image)
 
         # Add metadata info to table. Not all dicom have all the data (default = ' ')
         dcm_study_id = re.sub(r"\.(dcm|dicom)$", "", os.path.basename(dicom_path))
