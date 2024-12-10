@@ -10,6 +10,7 @@ import psycopg2
 from psycopg2 import sql
 import oci
 import base64
+from preprocess import negate_if_should
 
 
 ntp_db_params = {
@@ -195,6 +196,7 @@ def png_to_minio(dicom_folder, tmp_png_folder, filename):
         / (np.max(pixel_array) - np.min(pixel_array))
     ) * 255.0
     pixel_array = pixel_array.astype(np.uint8)
+    pixel_array = negate_if_should(pixel_array)
     # Define path for .png image
     png_image = os.path.basename(dicom_path)
     png_image = re.sub(r"\.(dcm|dicom)$", "", png_image)
@@ -206,25 +208,25 @@ def png_to_minio(dicom_folder, tmp_png_folder, filename):
 
     try:
         write_oracle_s3("bucket-aimambo-images", png_filepath)
-        #write_minio("firstbucket", png_filepath, png_image)
+        # write_minio("firstbucket", png_filepath, png_image)
 
         # Add metadata info to table. Not all dicom have all the data (default = ' ')
         dcm_study_id = re.sub(r"\.(dcm|dicom)$", "", os.path.basename(dicom_path))
-#        insert_dicom_metadata(
-#            ntp_db_params,
-#            table_name,
-#            dcm_study_id,
-#            get_attr(dicom_image, "PatientName", None),
-#            get_attr(dicom_image, "PatientID", None),
-#            get_attr(dicom_image, "StudyDate", None),
-#            get_attr(dicom_image, "StudyTime", None),
-#            get_attr(dicom_image, "ViewPosition", None),  # Could be missing
-#            get_attr(dicom_image, "ImageLaterality", None),  # Could be missing
-#            get_attr(dicom_image, "BreastImplantPresent", None),  # Custom default value
-#            get_attr(dicom_image, "Manufacturer", None),
-#            get_attr(dicom_image, "ManufacturerModelName", None),
-#            get_attr(dicom_image, "InstitutionName", None),
-#        )
+        #        insert_dicom_metadata(
+        #            ntp_db_params,
+        #            table_name,
+        #            dcm_study_id,
+        #            get_attr(dicom_image, "PatientName", None),
+        #            get_attr(dicom_image, "PatientID", None),
+        #            get_attr(dicom_image, "StudyDate", None),
+        #            get_attr(dicom_image, "StudyTime", None),
+        #            get_attr(dicom_image, "ViewPosition", None),  # Could be missing
+        #            get_attr(dicom_image, "ImageLaterality", None),  # Could be missing
+        #            get_attr(dicom_image, "BreastImplantPresent", None),  # Custom default value
+        #            get_attr(dicom_image, "Manufacturer", None),
+        #            get_attr(dicom_image, "ManufacturerModelName", None),
+        #            get_attr(dicom_image, "InstitutionName", None),
+        #        )
         insert_dicom_metadata(
             ite_db_params,
             table_name,
