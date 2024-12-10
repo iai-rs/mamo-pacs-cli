@@ -124,7 +124,7 @@ def inference_loader(img_dir, batch_size):
             negated = negate_if_should(original)
             only_breast_image, _ = keep_only_breast(negated)
             fully_preprocessed = self.preprocess(only_breast_image)
-            original = self.preprocess(original)
+            original = self.preprocess(negated)
 
             # Return image path and image tensor
             return img_path, fully_preprocessed, original
